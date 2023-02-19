@@ -8,7 +8,6 @@ logger = get_logger(__name__)
 
 class DriftActions(object):
     """"""
-
     def __init__(self, data: pd.DataFrame = None, test_results: Dict = None,
                  important_drift_columns: list = None):
         """"""

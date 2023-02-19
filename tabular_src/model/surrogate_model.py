@@ -78,7 +78,6 @@ class SurrogateModel(object):
                 logger.info('estimator {} is not implemented'.format(self.estimator))
                 raise ValueError('estimator {} is not implemented'.format(self.estimator))
         else:
-            # TODO 1: Set up for regression
             logger.info('setup for regression')
             if self.estimator == 'random_forest':
                 logger.info('Selecting random forest as surrogate model')

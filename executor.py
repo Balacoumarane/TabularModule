@@ -9,20 +9,20 @@ from tabular_src import get_logger
 
 logger = get_logger(__name__)
 
-config_name = 'data_config_regression'
+config_name = 'data_config_classification'
 
 @hydra.main(config_path='config', config_name=config_name)
 def execute_main(cfg) -> None:
     """"""
     # Set-up parameters
     t0 = time.time()
-    output_folder = os.path.join(cfg.paths.output, cfg.process.exp_id)
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-    logger.info('Storing results at {}'.format(output_folder))
-
     if cfg.paths.train is not None:
         logger.info('Running Training mode')
+        output_folder = os.path.join(cfg.paths.output, cfg.process.exp_id)
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+        logger.info('Storing results at {}'.format(output_folder))
+
         data_loader = DataLoader(train=cfg.paths.train, test=cfg.paths.test, is_reduce_memory=cfg.process.memory_reduce,
                                  infer_datatype=cfg.process.infer_datatype,
                                  categorical_columns=cfg.columns.categorical_columns,
@@ -110,7 +110,7 @@ def execute_main(cfg) -> None:
                               probability_threshold=cfg.model.prob_thresh, optimize=cfg.model.tuning,
                               custom_grid=custom_params_grid, n_iter=cfg.model.iteration, search_library='optuna',
                               search_algorithm='tpe', search_metric=cfg.model.search_metric, early_stopping=True,
-                              early_stopping_max_iters=4, ensemble_model=cfg.model.ensemble,
+                              early_stopping_max_iter=4, ensemble_model=cfg.model.ensemble,
                               ensemble_type=cfg.model.ensemble_type)
 
             pycaret_model.model_evaluation(path=output_folder, plot=True,
@@ -122,7 +122,6 @@ def execute_main(cfg) -> None:
 
             if cfg.model.fairness:
                 pycaret_model.check_fairness(sensitive_features=cfg.columns.sensitive_columns, path=output_folder)
-
             pycaret_model.save(path=output_folder, save_with_data=True)
         else:
             logger.info('only surrogate model training is selected')
@@ -140,7 +139,7 @@ def execute_main(cfg) -> None:
         if cfg.data_validation.prediction_drift:
             logger.info('Running prediction-training drift')
             try:
-                file_path = os.path.join(cfg.paths.result, 'training_data.parquet')
+                file_path = os.path.join(cfg.paths.result, 'dataset', 'training_data.parquet')
                 trained_data = pd.read_parquet(path=file_path, engine='auto')
                 # trained_data = trained_data.drop(columns=[cfg.columns.target_label])
                 categorical_cols, numerical_cols = data_loader.get_col_types(data=trained_data, auto=True)
@@ -150,7 +149,7 @@ def execute_main(cfg) -> None:
                                                target_label=None, task=cfg.process.task,
                                                seed=cfg.process.seed)
                 data_drift_report = data_drift.run_drift_checks(save_html=cfg.data_validation.save_html,
-                                                                save_dir=os.path.join(output_folder, 'reports'),
+                                                                save_dir=os.path.join(cfg.paths.result, 'reports'),
                                                                 filename='prediction_datadrift',
                                                                 return_dict=True)
                 datadrift_status = data_drift.act_drift_results(test_results=data_drift_report, drift_thresh=0.5)
@@ -163,13 +162,13 @@ def execute_main(cfg) -> None:
         pycaret_model = PyCaretModel(task=cfg.process.task, test=test_df, n_jobs=-1, use_gpu=False,
                                      is_multilabel=cfg.process.multi_label, seed=cfg.process.seed,
                                      verbose=cfg.process.verbose)
-        pycaret_model.load(path=output_folder)
+        pycaret_model.load(path=cfg.paths.result)
         # score model
         pred_col = 'prob_score' if cfg.process.task == 'classification' else 'prediction_label'
         test_df[pred_col] = pycaret_model.predict(data=test_df)
 
         # save result in the folder
-        pred_folder = os.path.join(output_folder, 'scoring')
+        pred_folder = os.path.join(cfg.paths.result, 'scoring')
         if not os.path.exists(pred_folder):
             os.makedirs(pred_folder)
             logger.info('Storing prediction at {}'.format(pred_folder))

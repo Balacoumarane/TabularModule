@@ -1,8 +1,8 @@
 paths:
-  train: '${hydra:runtime.cwd}/tabular_src/test/testdata/adult_2.csv'
+  train: '${hydra:runtime.cwd}/tabular_src/test/testdata/adult.csv'
   test: #'${hydra:runtime.cwd}/tabular_src/test/testdata/adult_test.csv'
   output: '${hydra:runtime.cwd}/model'
-  result:
+  result: '${hydra:runtime.cwd}/model/classification_xgb_lgb_cat'
 
 columns:
   categorical_columns: ['workclass', 'fnlwgt', 'education', 'marital.status', 'occupation', 'relationship',
@@ -16,7 +16,7 @@ columns:
   drift_columns: ['education', 'marital.status', 'occupation', 'race', 'hours.per.week']
 
 process:
-  exp_id: 'validate_2'
+  exp_id: 'classification_sklearn'
   memory_reduce: True
   infer_datatype: True
   test_ratio: 0.2
@@ -37,7 +37,7 @@ data_validation:
   data_drift: True
   data_integrity: True
   prediction_drift: True
-  prior_model_result: '${hydra:runtime.cwd}/model/validate/dataset/test_data_with_result.parquet'
+  prior_model_result: '${hydra:runtime.cwd}/model/validate_2/dataset/test_data_with_result.parquet'
   save_html: True
 
 defaults:
@@ -52,8 +52,8 @@ hydra:
 
 model:
   surrogate_algorithm: 'random_forest'
-  algorithm: ['catboost', 'lightgbm', 'xgboost']
-  ensemble: True
+  algorithm: ['rf', 'dt', 'ada', 'lr']
+  ensemble: False
   ensemble_type: 'stack'
   cv_fold: 4
   fold_strategy: 'stratifiedkfold' # or kfold for regression

@@ -2,7 +2,7 @@ paths:
   train: #'${hydra:runtime.cwd}/tabular_src/test/testdata/housing.csv'
   test: '${hydra:runtime.cwd}/tabular_src/test/testdata/housing_test.csv'
   output: '${hydra:runtime.cwd}/model'
-  result:
+  result: '${hydra:runtime.cwd}/model/regression_cat_xgb_lgb'
 
 columns:
   categorical_columns: ['Utilities', 'LotArea', 'Street']
@@ -15,7 +15,7 @@ columns:
   drift_columns: ['Utilities', 'LotArea', 'Street']
 
 process:
-  exp_id: 'regression_model_1'
+  exp_id: 'regression_cat_xgb_lgb'
   memory_reduce: True
   infer_datatype: True
   test_ratio: 0.2
@@ -36,7 +36,7 @@ data_validation:
   data_drift: True
   data_integrity: True
   prediction_drift: True
-  prior_model_result: '${hydra:runtime.cwd}/model/validate/dataset/test_data_with_result.parquet'
+  prior_model_result: '${hydra:runtime.cwd}/model/regression_sklearn/dataset/test_data_with_result.parquet'
   save_html: True
 
 defaults:
@@ -51,8 +51,8 @@ hydra:
 
 model:
   surrogate_algorithm: 'random_forest'
-  algorithm: ['catboost', 'xgboost']
-  ensemble: True
+  algorithm: ['catboost', 'xgboost', 'lightgbm']
+  ensemble: False
   ensemble_type: 'stack'
   cv_fold: 4
   fold_strategy: 'kfold' # or stratifiedkfold for classification

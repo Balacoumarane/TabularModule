@@ -140,7 +140,8 @@ class DataLoader(object):
                 self.test_df = self.train_df.loc[self.train_df.index[test_index]]
                 self.train_df = self.train_df.loc[self.train_df.index[train_index]]
             else: 
-                X_train, X_test, y_train, y_test = train_test_split(self.train_df.drop(columns=[self.target]), self.train_df[self.target], test_size=test_ratio)
+                X_train, X_test, y_train, y_test = train_test_split(self.train_df.drop(columns=[self.target]),
+                                                                    self.train_df[self.target], test_size=test_ratio)
                 self.test_df = X_test.join(y_test)
                 self.train_df = X_train.join(y_train)
             logger.info('Creating test(hold-out) by splitting the train dataframe')

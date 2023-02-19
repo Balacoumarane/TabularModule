@@ -4,11 +4,9 @@ import json
 import os
 from copy import deepcopy
 from sklearn.metrics import (
-    f1_score, accuracy_score, confusion_matrix, precision_score, recall_score,
-    multilabel_confusion_matrix, log_loss, roc_auc_score, classification_report,
-    mean_squared_error, mean_absolute_error, r2_score, mean_squared_log_error,mean_absolute_percentage_error,
-     median_absolute_error,explained_variance_score, mean_pinball_loss, d2_pinball_score, d2_absolute_error_score
-)
+    f1_score, accuracy_score, confusion_matrix, precision_score, recall_score, classification_report,
+    mean_squared_error, mean_absolute_error, r2_score, mean_squared_log_error, mean_absolute_percentage_error,
+    median_absolute_error)
 from ..data import PerformanceDrift
 from ..utils import get_logger
 
@@ -143,7 +141,7 @@ class EvaluateClassification(object):
               report_path: str = None, target_label: str = None, prediction_label: str = None):
         """"""
         try:
-            logger.info('There is no evaluation with prior model results')
+            logger.info('running evaluation with prior model results')
             previous_pred = pd.read_parquet(path=prior_model_result, engine='auto')
             result_drift = PerformanceDrift(prediction_latest=predict_df[[target_label, prediction_label]],
                                             prediction_earlier=previous_pred[[target_label, prediction_label]],
@@ -158,8 +156,7 @@ class EvaluateClassification(object):
 
 
 class EvaluateRegression(object):
-    # TODO 1: Implement for regression
-
+    """"""
     def __init__(self, estimator, labels, preds, seed: int = 33):
         assert isinstance(labels, (pd.Series, np.ndarray))
         assert isinstance(preds, (pd.Series, np.ndarray))
@@ -175,12 +172,13 @@ class EvaluateRegression(object):
 
         self.r2_score = r2_score(self.labels, self.preds)
         self.mean_absolute_error = mean_absolute_error(self.labels, self.preds)
-        self.root_mean_squared_error = mean_squared_error(self.labels, self.preds, squared = False)
+        self.root_mean_squared_error = mean_squared_error(self.labels, self.preds, squared=False)
         self.mean_squared_log_error = mean_squared_log_error(self.labels, self.preds)
         self.mean_absolute_percentage_error = mean_absolute_percentage_error(self.labels, self.preds)
-        self.median_absolute_error =  median_absolute_error(self.labels, self.preds)
+        self.median_absolute_error = median_absolute_error(self.labels, self.preds)
 
     def show(self):
+        """"""
         logger.info('R2 score: {}'.format(self.r2_score))
         logger.info('Mean absolute error: {}'.format(self.mean_absolute_error))
         logger.info('Root mean squared error: {}'.format(self.root_mean_squared_error))
@@ -189,6 +187,7 @@ class EvaluateRegression(object):
         logger.info('Median absolute error: {}'.format(self.median_absolute_error))
 
     def to_dict(self):
+        """"""
         res = {
             'r2_score': self.r2_score,
             'mean_absolute_error': self.mean_absolute_error,
@@ -200,6 +199,7 @@ class EvaluateRegression(object):
         return res
 
     def to_json(self):
+        """"""
         dic = self.to_dict()
         res = deepcopy(dic)
         return res
@@ -215,7 +215,7 @@ class EvaluateRegression(object):
         else:
             logger.info('Saving plots at {}'.format(plot_path))
             self.plot(path=plot_path)
-    
+
     def plot(self, path: str = None):
         """"""
         from pycaret.regression import plot_model
@@ -228,14 +228,14 @@ class EvaluateRegression(object):
               report_path: str = None, target_label: str = None, prediction_label: str = None):
         """"""
         try:
-            logger.info('There is no evaluation with prior model results')
+            logger.info('running evaluation with prior model results')
             previous_pred = pd.read_parquet(path=prior_model_result, engine='auto')
             result_drift = PerformanceDrift(prediction_latest=predict_df[[target_label, prediction_label]],
                                             prediction_earlier=previous_pred[[target_label, prediction_label]],
                                             categorical_columns=None, numerical_columns=None, datetime_columns=None,
                                             target_label=target_label, prediction_label=prediction_label,
                                             task='regression', seed=self.seed)
-            result_drift.run_drift_checks(multi_label=self.multi_label, save_html=True,
+            result_drift.run_drift_checks(multi_label=False, save_html=True,
                                           save_dir=os.path.join(report_path, 'reports'),
                                           filename='performance_datadrift', return_dict=False)
         except Exception as error:

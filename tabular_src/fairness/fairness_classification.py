@@ -18,7 +18,6 @@ logger = get_logger(__name__)
 
 class PerformanceMetric(object):
     """"""
-
     def __init__(self, labels, preds, sensitive_feature: pd.Series = None, multi_label: bool = False):
         assert isinstance(labels, (pd.Series, np.ndarray))
         assert isinstance(preds, (pd.Series, np.ndarray))
@@ -102,7 +101,6 @@ class PerformanceMetric(object):
 
 class FairnessMetric(object):
     """"""
-
     def __init__(self, labels, preds, sensitive_feature: pd.Series = None, fairness_method: str = 'between_groups',
                  parity_method: str = 'difference', multi_label: bool = False):
         assert isinstance(labels, (pd.Series, np.ndarray))
@@ -177,7 +175,6 @@ class FairnessMetric(object):
 
 class FairnessClassification(object):
     """"""
-
     def __init__(self, labels, pred_proba, prob_threshold, multi_label=False,
                  sensitive_df: pd.DataFrame = None, report_path: str = None):
         assert isinstance(labels, (pd.Series, np.ndarray))

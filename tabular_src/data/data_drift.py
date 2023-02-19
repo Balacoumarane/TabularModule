@@ -20,6 +20,7 @@ logger = get_logger(__name__)
 
 
 class DataIntegrityTest(object):
+    """"""
     def __init__(self, df: pd.DataFrame = None, categorical_columns: list = None, numerical_columns: list = None,
                  datetime_columns: list = None, target_label: str = None, task: str = None, seed: int = None):
         assert isinstance(df, pd.DataFrame), 'Data is not in Pandas DataFrame'
@@ -78,6 +79,7 @@ class DataIntegrityTest(object):
 
 
 class TrainingDataDrift(object):
+    """"""
     def __init__(self, train_df: pd.DataFrame = None, test_df: pd.DataFrame = None,
                  categorical_columns: list = None, numerical_columns: list = None,
                  datetime_columns: list = None, target_label: str = None, prediction_label: str = None,
@@ -177,6 +179,7 @@ class TrainingDataDrift(object):
 
 
 class PerformanceDrift(object):
+    """"""
     def __init__(self, prediction_latest: pd.DataFrame = None, prediction_earlier: pd.DataFrame = None,
                  categorical_columns: list = None, numerical_columns: list = None,
                  datetime_columns: list = None, target_label: str = None, prediction_label: str = None,
@@ -216,7 +219,8 @@ class PerformanceDrift(object):
             datadrift_tests = TestSuite(tests=[
                 RegressionTestPreset(),
             ])
-        datadrift_tests.run(current_data=self.pred_latest, reference_data=self.pred_earlier, column_mapping=self.col_mapping)
+        datadrift_tests.run(current_data=self.pred_latest, reference_data=self.pred_earlier,
+                            column_mapping=self.col_mapping)
         if not save_html:
             logger.info('Not result drift in html/json format')
         else:

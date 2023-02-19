@@ -2,7 +2,7 @@ paths:
   train: #'${hydra:runtime.cwd}/tabular_src/test/testdata/housing.csv'
   test: '${hydra:runtime.cwd}/tabular_src/test/testdata/housing_test.csv'
   output: '${hydra:runtime.cwd}/model'
-  result: '${hydra:runtime.cwd}/model/regression_cat_xgb_lgb'
+  train_result: '${hydra:runtime.cwd}/model/regression_cat_xgb_lgb'
 
 columns:
   categorical_columns: ['Utilities', 'LotArea', 'Street']

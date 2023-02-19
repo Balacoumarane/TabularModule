@@ -139,7 +139,7 @@ def execute_main(cfg) -> None:
         if cfg.data_validation.prediction_drift:
             logger.info('Running prediction-training drift')
             try:
-                file_path = os.path.join(cfg.paths.result, 'dataset', 'training_data.parquet')
+                file_path = os.path.join(cfg.paths.train_result, 'dataset', 'training_data.parquet')
                 trained_data = pd.read_parquet(path=file_path, engine='auto')
                 # trained_data = trained_data.drop(columns=[cfg.columns.target_label])
                 categorical_cols, numerical_cols = data_loader.get_col_types(data=trained_data, auto=True)
@@ -149,7 +149,8 @@ def execute_main(cfg) -> None:
                                                target_label=None, task=cfg.process.task,
                                                seed=cfg.process.seed)
                 data_drift_report = data_drift.run_drift_checks(save_html=cfg.data_validation.save_html,
-                                                                save_dir=os.path.join(cfg.paths.result, 'reports'),
+                                                                save_dir=os.path.join(cfg.paths.train_result,
+                                                                                      'reports'),
                                                                 filename='prediction_datadrift',
                                                                 return_dict=True)
                 datadrift_status = data_drift.act_drift_results(test_results=data_drift_report, drift_thresh=0.5)
@@ -162,13 +163,13 @@ def execute_main(cfg) -> None:
         pycaret_model = PyCaretModel(task=cfg.process.task, test=test_df, n_jobs=-1, use_gpu=False,
                                      is_multilabel=cfg.process.multi_label, seed=cfg.process.seed,
                                      verbose=cfg.process.verbose)
-        pycaret_model.load(path=cfg.paths.result)
+        pycaret_model.load(path=cfg.paths.train_result)
         # score model
         pred_col = 'prob_score' if cfg.process.task == 'classification' else 'prediction_label'
         test_df[pred_col] = pycaret_model.predict(data=test_df)
 
         # save result in the folder
-        pred_folder = os.path.join(cfg.paths.result, 'scoring')
+        pred_folder = os.path.join(cfg.paths.train_result, 'scoring')
         if not os.path.exists(pred_folder):
             os.makedirs(pred_folder)
             logger.info('Storing prediction at {}'.format(pred_folder))
